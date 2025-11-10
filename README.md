@@ -1,78 +1,89 @@
-# AAVE v3 Health Factor Snapshot API — Base Network
+AAVE v3 Health Factor Snapshot API — Base Network
 
-A high-performance, read-only API that returns a complete AAVE v3 Health Factor and risk snapshot for any wallet on the **Base** network (chainId 8453).  
-Designed for liquidation bots, dashboards, risk engines, trading systems, and portfolio trackers needing accurate, machine-readable AAVE data.
+A high-performance, read-only API that returns a complete AAVE v3 Health Factor and risk snapshot for any wallet on the Base network (chainId 8453).
+Designed for liquidation bots, dashboards, risk engines, quant strategies, and portfolio trackers needing accurate, machine-readable AAVE risk data.
 
----
+✅ Features
 
-## ✅ Features
+Real-time Health Factor (HF)
+LTV, liquidation threshold, liquidation buffer (USD)
+Total collateral, total debt, net equity, leverage ratio
+Full collateral breakdown (per-asset amounts, USD values, weight, LTV/LT)
+Full debt breakdown (variable/stable, APY, caps, utilization)
+Oracle pricing with last-update timestamps
+Stress-tested HF under −1%, −3%, and −5% market moves
+E-Mode & Isolation Mode detection
+Supply-cap and borrow-cap usage per asset
+Clean, stable, machine-readable JSON output
+Requires zero infrastructure — runs fully inside a dRPC Add-On
 
-- Real-time **Health Factor (HF)**
-- **LTV**, liquidation threshold, and liquidation buffer (USD)
-- Total collateral, total debt, net equity, leverage ratio
-- Full **collateral breakdown** (asset weights, LTV/LT, USD values)
-- Full **debt breakdown** (variable/stable, APY, caps, utilization)
-- Oracle pricing data with update timestamps
-- Stress-tested HF under −1%, −3%, −5% market moves
-- E-Mode & Isolation Mode detection
-- Cap usage per asset (borrow/supply caps)
-- Clean, stable, machine-readable JSON output
-- Zero infrastructure required — runs as a dRPC Add-On
+✅ Documentation
+API Reference
 
----
+Full endpoint details, parameters, field descriptions:
+➡️ docs/api.md
 
-## ✅ Documentation
+JSON Schema
 
-### • API Reference  
-Full endpoint details, request format, and field descriptions:  
-➡️ [`docs/api.md`](docs/api.md)
+Formal schema defining all fields, types, and structure:
+➡️ schemas/aave-base-hf-snapshot.schema.json
 
-### • JSON Schema  
-Formal schema defining all fields, types, and structure:  
-➡️ [`schemas/aave-base-hf-snapshot.schema.json`](schemas/aave-base-hf-snapshot.schema.json)
+Sample Output
 
-### • Sample Output  
-Real example response from a Base AAVE account:  
-➡️ [`examples/sample-response.json`](examples/sample-response.json)
+Real output from the handler, ready for schema validation:
+➡️ examples/sample-response.json
 
----
+✅ Use Cases
 
-## ✅ Use Cases
+Liquidation monitoring
+Health Factor alerting
+Automated deleveraging bots
+Smart-debt-manager agents
+Dashboard or portfolio integrations
+Quantitative trading engines
+Wallet-risk analytics
+Whale liquidation-risk watchers
 
-- Liquidation monitoring  
-- Health Factor alerting  
-- Automated deleveraging bots  
-- Smart debt manager agents  
-- Dashboard integrations  
-- Quant strategy engines  
-- Wallet portfolio analytics  
-- Whale-risk watchers  
+✅ Output Type Policy (Marketplace-Ready)
 
----
+• Prices, USD values, APYs, LTVs, LT, ratios → string decimals ("123.456")
+• Token amounts, supply/borrow caps → string integers / decimals
+• Timestamps, counters → integers
+• Booleans → true/false
+• Addresses, symbols → strings
 
-## ✅ Network Support
+This ensures compatibility with JS, Python, Rust, Golang, SQL, and time-series analytics tools.
 
-- **Base Mainnet** — chainId **8453**  
-- AAVE Protocol: **v3**
+✅ Supported Network
 
----
+Base Mainnet — chainId 8453
 
-## ✅ Versioning
+AAVE Protocol — v3
 
-- Current spec/schema: **1.0.0**
-- Breaking changes increment the major version and create a new schema file.
+✅ Quick Start (Local Development)
+# Run local test to generate snapshot
+python test_local.py
 
----
+# Validate output matches schema
+python validate_schema.py .\examples\sample-response.json
 
-## ✅ License
 
-Licensed under the MIT License.  
-See [`LICENSE`](LICENSE) for details.
+Local testing uses the same event structure that dRPC uses in production.
 
----
+✅ Versioning
 
-## ✅ Contact
+Current spec/schema: 1.0.0
+Non-breaking changes increment the minor version.
+Breaking changes create a new schema file and major version.
 
-For questions, integration support, or feature requests, contact:
+✅ License
 
-### 👉 **Telegram: @DeFiDataOps**
+Licensed under the MIT License.
+See LICENSE
+ for details.
+
+✅ Contact
+
+For questions, integration support, or feature requests:
+
+👉 Telegram: @DeFiDataOps
