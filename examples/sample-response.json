@@ -1,43 +1,43 @@
 {
   "network": "base",
   "chain_id": 8453,
-  "address": "0xabc123abc123abc123abc123abc123abc123abc1",
-  "timestamp": 1736539200,
+  "address": "0x1111111111111111111111111111111111111111",
+  "timestamp": 1700000000,
   "user": {
-    "health_factor": 1.1529,
-    "ltv": 0.42,
-    "liquidation_threshold": 0.63,
-    "liquidation_buffer_usd": 128.44,
-    "available_borrows_usd": 692.19,
+    "health_factor": "1.1500000000",
+    "ltv": "0.7300",
+    "liquidation_threshold": "0.7800",
+    "liquidation_buffer_usd": "200.00",
+    "available_borrows_usd": "100.00",
     "risk_class": "moderate",
     "is_safe": true,
     "stress_tests": {
-      "hf_minus_1pct": 1.137,
-      "hf_minus_3pct": 1.098,
-      "hf_minus_5pct": 1.058
+      "hf_minus_1pct": "1.1385000000",
+      "hf_minus_3pct": "1.1155000000",
+      "hf_minus_5pct": "1.0925000000"
     }
   },
   "totals": {
-    "total_collateral_usd": 134.0531,
-    "total_debt_usd": 90.9369,
-    "net_equity_usd": 43.1162,
-    "current_leverage_ratio": 2.11,
-    "max_leverage_at_current_hf": 2.39
+    "total_collateral_usd": "1800.00",
+    "total_debt_usd": "1200.00",
+    "net_equity_usd": "600.00",
+    "current_leverage_ratio": "3.0000",
+    "max_leverage_at_current_hf": "7.1000"
   },
   "collateral": [
     {
       "token": {
-        "symbol": "WETH",
-        "address": "0x4200000000000000000000000000000000000006",
-        "decimals": 18
+        "symbol": "cbBTC",
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "decimals": 8
       },
-      "amount": 0.024485492,
-      "amount_usd": 74.32,
-      "price_usd": 3036.12,
+      "amount": "0.01780000",
+      "amount_usd": "1800.00",
+      "price_usd": "101123.59550562",
       "usage_as_collateral_enabled": true,
-      "reserve_ltv": 0.8,
-      "reserve_liquidation_threshold": 0.825,
-      "reserve_liquidation_bonus": 1.08,
+      "reserve_ltv": "0.73",
+      "reserve_liquidation_threshold": "0.78",
+      "reserve_liquidation_bonus": "1.075",
       "emode_category": null
     }
   ],
@@ -45,45 +45,45 @@
     {
       "token": {
         "symbol": "USDC",
-        "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         "decimals": 6
       },
-      "variable_debt": 64.44537,
-      "stable_debt": 0,
-      "total_debt_usd": 64.44537,
-      "variable_borrow_apy": 0.0741,
-      "stable_borrow_apy": 0,
-      "reserve_utilization": 0.72,
-      "borrow_cap": 20000000,
-      "borrow_cap_used_percent": 41.2
+      "variable_debt": "1200.00",
+      "stable_debt": "0",
+      "total_debt_usd": "1200.00",
+      "variable_borrow_apy": "0.0664",
+      "stable_borrow_apy": "0",
+      "reserve_utilization": "0.7600",
+      "borrow_cap": "0",
+      "borrow_cap_used_percent": "0"
     }
   ],
   "oracles": {
     "base_currency": {
       "symbol": "ETH",
-      "price_usd": 3036.12,
-      "last_update": 1736539188
+      "price_usd": "3500.00",
+      "last_update": 1700000000
     },
     "assets": [
       {
         "token": {
-          "symbol": "WETH",
-          "address": "0x4200000000000000000000000000000000000006",
-          "decimals": 18
+          "symbol": "cbBTC",
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "decimals": 8
         },
-        "price_usd": 3036.12,
-        "last_update": 1736539188,
-        "confidence_score": 0.99
+        "price_usd": "101123.59550562",
+        "last_update": 1700000000,
+        "confidence_score": "0.99"
       },
       {
         "token": {
           "symbol": "USDC",
-          "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
           "decimals": 6
         },
-        "price_usd": 1,
-        "last_update": 1736539188,
-        "confidence_score": 0.999
+        "price_usd": "0.9999",
+        "last_update": 1700000000,
+        "confidence_score": "0.999"
       }
     ]
   },
@@ -95,26 +95,26 @@
     },
     "isolation_mode": {
       "active": false,
-      "debt_ceiling_remaining_usd": 0
+      "debt_ceiling_remaining_usd": "0"
     },
     "caps": [
       {
         "token": {
           "symbol": "USDC",
-          "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
           "decimals": 6
         },
-        "supply_cap": 30000000,
-        "supply_cap_used_percent": 57.4,
-        "borrow_cap": 20000000,
-        "borrow_cap_used_percent": 41.2
+        "supply_cap": "0",
+        "supply_cap_used_percent": "0",
+        "borrow_cap": "0",
+        "borrow_cap_used_percent": "0"
       }
     ]
   },
   "meta": {
     "data_provider": "aave-v3",
     "oracle_source": "aave-oracle",
-    "latency_ms": 182,
+    "latency_ms": 25,
     "version": "1.0.0"
   }
 }
