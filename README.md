@@ -1,89 +1,100 @@
-AAVE v3 Health Factor Snapshot API — Base Network
+# AAVE v3 Health Factor Snapshot API — Base Network
 
-A high-performance, read-only API that returns a complete AAVE v3 Health Factor and risk snapshot for any wallet on the Base network (chainId 8453).
+A high-performance, read-only API that returns a complete AAVE v3 Health Factor and risk snapshot for any wallet on the Base network (chainId 8453).  
 Designed for liquidation bots, dashboards, risk engines, quant strategies, and portfolio trackers needing accurate, machine-readable AAVE risk data.
 
-✅ Features
+---
 
-Real-time Health Factor (HF)
-LTV, liquidation threshold, liquidation buffer (USD)
-Total collateral, total debt, net equity, leverage ratio
-Full collateral breakdown (per-asset amounts, USD values, weight, LTV/LT)
-Full debt breakdown (variable/stable, APY, caps, utilization)
-Oracle pricing with last-update timestamps
-Stress-tested HF under −1%, −3%, and −5% market moves
-E-Mode & Isolation Mode detection
-Supply-cap and borrow-cap usage per asset
-Clean, stable, machine-readable JSON output
-Requires zero infrastructure — runs fully inside a dRPC Add-On
+## ✅ Features
 
-✅ Documentation
-API Reference
+- Real-time Health Factor (HF)  
+- LTV, liquidation threshold, liquidation buffer (USD)  
+- Total collateral, total debt, net equity, leverage ratio  
+- Full collateral breakdown (per-asset amounts, USD values, weights, LTV/LT)  
+- Full debt breakdown (variable/stable, APY, caps, utilization)  
+- Oracle pricing with last-update timestamps  
+- Stress-tested HF under −1%, −3%, −5% market moves  
+- E-Mode & Isolation Mode detection  
+- Supply-cap and borrow-cap usage per asset  
+- Clean, stable, machine-readable JSON output  
+- Zero infrastructure required — runs entirely as a dRPC Add-On
 
-Full endpoint details, parameters, field descriptions:
-➡️ docs/api.md
+---
 
-JSON Schema
+## ✅ Documentation
 
-Formal schema defining all fields, types, and structure:
-➡️ schemas/aave-base-hf-snapshot.schema.json
+### API Reference  
+Full endpoint details, parameters, and field descriptions:  
+➡️ `docs/api.md`
 
-Sample Output
+### JSON Schema  
+Formal schema defining all fields, types, and structure:  
+➡️ `schemas/aave-base-hf-snapshot.schema.json`
 
-Real output from the handler, ready for schema validation:
-➡️ examples/sample-response.json
+### Sample Output  
+Real output from the handler, ready for schema validation:  
+➡️ `examples/sample-response.json`
 
-✅ Use Cases
+---
 
-Liquidation monitoring
-Health Factor alerting
-Automated deleveraging bots
-Smart-debt-manager agents
-Dashboard or portfolio integrations
-Quantitative trading engines
-Wallet-risk analytics
-Whale liquidation-risk watchers
+## ✅ Use Cases
 
-✅ Output Type Policy (Marketplace-Ready)
+- Liquidation monitoring  
+- Health Factor alerting  
+- Automated deleveraging bots  
+- Smart-debt-manager agents  
+- Dashboard or portfolio integrations  
+- Quant trading engines  
+- Wallet-risk analytics  
+- Whale liquidation-risk watchers  
 
-• Prices, USD values, APYs, LTVs, LT, ratios → string decimals ("123.456")
-• Token amounts, supply/borrow caps → string integers / decimals
-• Timestamps, counters → integers
-• Booleans → true/false
-• Addresses, symbols → strings
+---
 
-This ensures compatibility with JS, Python, Rust, Golang, SQL, and time-series analytics tools.
+## ✅ Output Type Policy (Marketplace-Safe)
 
-✅ Supported Network
+- **Prices, USD values, APYs, LTVs, LT, ratios →** string decimals (`"123.456"`)  
+- **Token amounts, caps, counters →** string integers/decimals  
+- **Timestamps →** integers  
+- **Booleans →** true/false  
+- **Addresses/symbols →** strings  
 
-Base Mainnet — chainId 8453
+---
 
-AAVE Protocol — v3
+## ✅ Supported Network
 
-✅ Quick Start (Local Development)
+- Base Mainnet — chainId **8453**  
+- AAVE Protocol — **v3**
+
+---
+
+## ✅ Quick Start (Local Development)
+
+```
 # Run local test to generate snapshot
 python test_local.py
 
-# Validate output matches schema
+# Validate the output matches the schema
 python validate_schema.py .\examples\sample-response.json
+```
 
+---
 
-Local testing uses the same event structure that dRPC uses in production.
+## ✅ Versioning
 
-✅ Versioning
-
-Current spec/schema: 1.0.0
-Non-breaking changes increment the minor version.
+Current spec/schema: **1.0.0**  
+Non-breaking changes increment the minor version.  
 Breaking changes create a new schema file and major version.
 
-✅ License
+---
 
-Licensed under the MIT License.
-See LICENSE
- for details.
+## ✅ License
 
-✅ Contact
+Licensed under the MIT License.  
+See `LICENSE` for details.
 
-For questions, integration support, or feature requests:
+---
 
-👉 Telegram: @DeFiDataOps
+## ✅ Contact
+
+For questions or integration support:  
+👉 Telegram: **@DeFiDataOps**
