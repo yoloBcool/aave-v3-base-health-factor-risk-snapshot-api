@@ -1,6 +1,4 @@
 
-## `schemas/aave-base-hf-snapshot.schema.json`
-```json
 {
   "$id": "https://example.com/schemas/aave-base-hf-snapshot.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
