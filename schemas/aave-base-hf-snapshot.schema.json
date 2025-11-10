@@ -1,9 +1,9 @@
-
 {
-  "$id": "https://example.com/schemas/aave-base-hf-snapshot.schema.json",
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "AAVE v3 – Health Factor Snapshot (Base 8453)",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/aave-hf-snapshot.schema.json",
+  "title": "AAVE v3 Health Factor Snapshot (Base)",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "network",
     "chain_id",
@@ -14,15 +14,17 @@
     "collateral",
     "debt",
     "oracles",
-    "config"
+    "config",
+    "meta"
   ],
   "properties": {
-    "network": { "type": "string", "const": "base" },
+    "network": { "const": "base" },
     "chain_id": { "type": "integer", "const": 8453 },
-    "address": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
-    "timestamp": { "type": "integer" },
+    "address": { "$ref": "#/$defs/address" },
+    "timestamp": { "type": "integer", "minimum": 0 },
     "user": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
         "health_factor",
         "ltv",
@@ -30,31 +32,32 @@
         "liquidation_buffer_usd",
         "available_borrows_usd",
         "risk_class",
-        "is_safe"
+        "is_safe",
+        "stress_tests"
       ],
       "properties": {
-        "health_factor": { "type": "number" },
-        "ltv": { "type": "number", "minimum": 0, "maximum": 1 },
-        "liquidation_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
-        "liquidation_buffer_usd": { "type": "number" },
-        "available_borrows_usd": { "type": "number" },
+        "health_factor": { "$ref": "#/$defs/decimalString" },
+        "ltv": { "$ref": "#/$defs/udecimalString" },
+        "liquidation_threshold": { "$ref": "#/$defs/udecimalString" },
+        "liquidation_buffer_usd": { "$ref": "#/$defs/decimalString" },
+        "available_borrows_usd": { "$ref": "#/$defs/udecimalString" },
         "risk_class": { "type": "string", "enum": ["low", "moderate", "high"] },
         "is_safe": { "type": "boolean" },
         "stress_tests": {
           "type": "object",
+          "additionalProperties": false,
           "required": ["hf_minus_1pct", "hf_minus_3pct", "hf_minus_5pct"],
           "properties": {
-            "hf_minus_1pct": { "type": "number" },
-            "hf_minus_3pct": { "type": "number" },
-            "hf_minus_5pct": { "type": "number" }
-          },
-          "additionalProperties": false
+            "hf_minus_1pct": { "$ref": "#/$defs/decimalString" },
+            "hf_minus_3pct": { "$ref": "#/$defs/decimalString" },
+            "hf_minus_5pct": { "$ref": "#/$defs/decimalString" }
+          }
         }
-      },
-      "additionalProperties": false
+      }
     },
     "totals": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
         "total_collateral_usd",
         "total_debt_usd",
@@ -63,108 +66,110 @@
         "max_leverage_at_current_hf"
       ],
       "properties": {
-        "total_collateral_usd": { "type": "number" },
-        "total_debt_usd": { "type": "number" },
-        "net_equity_usd": { "type": "number" },
-        "current_leverage_ratio": { "type": "number", "minimum": 0 },
-        "max_leverage_at_current_hf": { "type": "number", "minimum": 0 }
-      },
-      "additionalProperties": false
+        "total_collateral_usd": { "$ref": "#/$defs/udecimalString" },
+        "total_debt_usd": { "$ref": "#/$defs/udecimalString" },
+        "net_equity_usd": { "$ref": "#/$defs/decimalString" },
+        "current_leverage_ratio": { "$ref": "#/$defs/udecimalString" },
+        "max_leverage_at_current_hf": { "$ref": "#/$defs/udecimalString" }
+      }
     },
     "collateral": {
       "type": "array",
-      "items": { "$ref": "#/$defs/CollateralItem" }
+      "items": { "$ref": "#/$defs/collateralItem" }
     },
     "debt": {
       "type": "array",
-      "items": { "$ref": "#/$defs/DebtItem" }
+      "items": { "$ref": "#/$defs/debtItem" }
     },
     "oracles": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["base_currency", "assets"],
       "properties": {
         "base_currency": {
           "type": "object",
+          "additionalProperties": false,
           "required": ["symbol", "price_usd", "last_update"],
           "properties": {
             "symbol": { "type": "string" },
-            "price_usd": { "type": "number" },
-            "last_update": { "type": "integer" }
-          },
-          "additionalProperties": false
+            "price_usd": { "$ref": "#/$defs/udecimalString" },
+            "last_update": { "type": "integer", "minimum": 0 }
+          }
         },
         "assets": {
           "type": "array",
-          "items": { "$ref": "#/$defs/PriceInfo" }
+          "items": { "$ref": "#/$defs/oracleAsset" }
         }
-      },
-      "additionalProperties": false
+      }
     },
     "config": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["emode", "isolation_mode", "caps"],
       "properties": {
         "emode": {
           "type": "object",
-          "required": ["active", "category"],
+          "additionalProperties": false,
+          "required": ["active", "category", "settings"],
           "properties": {
             "active": { "type": "boolean" },
-            "category": { "type": ["integer", "null"] },
-            "settings": { "$ref": "#/$defs/EmodeSettings" }
-          },
-          "additionalProperties": false
+            "category": { "type": ["string", "null"] },
+            "settings": { "type": ["object", "null"] }
+          }
         },
         "isolation_mode": {
           "type": "object",
+          "additionalProperties": false,
           "required": ["active", "debt_ceiling_remaining_usd"],
           "properties": {
             "active": { "type": "boolean" },
-            "debt_ceiling_remaining_usd": { "type": "number" }
-          },
-          "additionalProperties": false
+            "debt_ceiling_remaining_usd": { "$ref": "#/$defs/udecimalString" }
+          }
         },
         "caps": {
           "type": "array",
-          "items": { "$ref": "#/$defs/CapUsage" }
+          "items": { "$ref": "#/$defs/capItem" }
         }
-      },
-      "additionalProperties": false
+      }
     },
     "meta": {
       "type": "object",
+      "additionalProperties": false,
+      "required": ["data_provider", "oracle_source", "latency_ms", "version"],
       "properties": {
-        "data_provider": { "type": "string", "const": "aave-v3" },
-        "oracle_source": { "type": "string", "enum": ["aave-oracle", "chainlink", "custom"] },
+        "data_provider": { "type": "string" },
+        "oracle_source": { "type": "string" },
         "latency_ms": { "type": "integer", "minimum": 0 },
         "version": { "type": "string" }
-      },
-      "additionalProperties": false
+      }
     }
   },
   "$defs": {
-    "TokenRef": {
+    "address": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{40}$"
+    },
+    "decimalString": {
+      "type": "string",
+      "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+    },
+    "udecimalString": {
+      "type": "string",
+      "pattern": "^(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+    },
+    "token": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["symbol", "address", "decimals"],
       "properties": {
         "symbol": { "type": "string" },
-        "address": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
-        "decimals": { "type": "integer", "minimum": 0, "maximum": 36 }
-      },
-      "additionalProperties": false
+        "address": { "$ref": "#/$defs/address" },
+        "decimals": { "type": "integer", "minimum": 0, "maximum": 255 }
+      }
     },
-    "PriceInfo": {
+    "collateralItem": {
       "type": "object",
-      "required": ["token", "price_usd", "last_update"],
-      "properties": {
-        "token": { "$ref": "#/$defs/TokenRef" },
-        "price_usd": { "type": "number" },
-        "last_update": { "type": "integer" },
-        "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
-      },
-      "additionalProperties": false
-    },
-    "CollateralItem": {
-      "type": "object",
+      "additionalProperties": false,
       "required": [
         "token",
         "amount",
@@ -177,20 +182,20 @@
         "emode_category"
       ],
       "properties": {
-        "token": { "$ref": "#/$defs/TokenRef" },
-        "amount": { "type": "number" },
-        "amount_usd": { "type": "number" },
-        "price_usd": { "type": "number" },
+        "token": { "$ref": "#/$defs/token" },
+        "amount": { "$ref": "#/$defs/udecimalString" },
+        "amount_usd": { "$ref": "#/$defs/udecimalString" },
+        "price_usd": { "$ref": "#/$defs/udecimalString" },
         "usage_as_collateral_enabled": { "type": "boolean" },
-        "reserve_ltv": { "type": "number", "minimum": 0, "maximum": 1 },
-        "reserve_liquidation_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
-        "reserve_liquidation_bonus": { "type": "number", "minimum": 0 },
-        "emode_category": { "type": ["integer", "null"] }
-      },
-      "additionalProperties": false
+        "reserve_ltv": { "$ref": "#/$defs/udecimalString" },
+        "reserve_liquidation_threshold": { "$ref": "#/$defs/udecimalString" },
+        "reserve_liquidation_bonus": { "$ref": "#/$defs/udecimalString" },
+        "emode_category": { "type": ["string", "null"], "pattern": "^[0-9]+$" }
+      }
     },
-    "DebtItem": {
+    "debtItem": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
         "token",
         "variable_debt",
@@ -203,40 +208,89 @@
         "borrow_cap_used_percent"
       ],
       "properties": {
-        "token": { "$ref": "#/$defs/TokenRef" },
-        "variable_debt": { "type": "number" },
-        "stable_debt": { "type": "number" },
-        "total_debt_usd": { "type": "number" },
-        "variable_borrow_apy": { "type": "number" },
-        "stable_borrow_apy": { "type": "number" },
-        "reserve_utilization": { "type": "number", "minimum": 0, "maximum": 1 },
-        "borrow_cap": { "type": "number" },
-        "borrow_cap_used_percent": { "type": "number", "minimum": 0, "maximum": 100 }
-      },
-      "additionalProperties": false
+        "token": { "$ref": "#/$defs/token" },
+        "variable_debt": { "$ref": "#/$defs/udecimalString" },
+        "stable_debt": { "$ref": "#/$defs/udecimalString" },
+        "total_debt_usd": { "$ref": "#/$defs/udecimalString" },
+        "variable_borrow_apy": { "$ref": "#/$defs/udecimalString" },
+        "stable_borrow_apy": { "$ref": "#/$defs/udecimalString" },
+        "reserve_utilization": { "$ref": "#/$defs/udecimalString" },
+        "borrow_cap": {
+          "type": "string",
+          "pattern": "^(?:0|[1-9]\\d*)$"
+        },
+        "borrow_cap_used_percent": { "$ref": "#/$defs/udecimalString" }
+      }
     },
-    "EmodeSettings": {
+    "oracleAsset": {
       "type": "object",
-      "required": ["ltv", "liquidation_threshold", "liquidation_bonus"],
+      "additionalProperties": false,
+      "required": ["token", "price_usd", "last_update", "confidence_score"],
       "properties": {
-        "ltv": { "type": "number", "minimum": 0, "maximum": 1 },
-        "liquidation_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
-        "liquidation_bonus": { "type": "number", "minimum": 0 }
-      },
-      "additionalProperties": false
+        "token": { "$ref": "#/$defs/token" },
+        "price_usd": { "$ref": "#/$defs/udecimalString" },
+        "last_update": { "type": "integer", "minimum": 0 },
+        "confidence_score": { "$ref": "#/$defs/udecimalString" }
+      }
     },
-    "CapUsage": {
+    "capItem": {
       "type": "object",
-      "required": ["token", "supply_cap", "supply_cap_used_percent", "borrow_cap", "borrow_cap_used_percent"],
+      "additionalProperties": false,
+      "required": [
+        "token",
+        "supply_cap",
+        "supply_cap_used_percent",
+        "borrow_cap",
+        "borrow_cap_used_percent"
+      ],
       "properties": {
-        "token": { "$ref": "#/$defs/TokenRef" },
-        "supply_cap": { "type": "number" },
-        "supply_cap_used_percent": { "type": "number", "minimum": 0, "maximum": 100 },
-        "borrow_cap": { "type": "number" },
-        "borrow_cap_used_percent": { "type": "number", "minimum": 0, "maximum": 100 }
-      },
-      "additionalProperties": false
+        "token": { "$ref": "#/$defs/token" },
+        "supply_cap": { "type": "string", "pattern": "^(?:0|[1-9]\\d*)$" },
+        "supply_cap_used_percent": { "$ref": "#/$defs/udecimalString" },
+        "borrow_cap": { "type": "string", "pattern": "^(?:0|[1-9]\\d*)$" },
+        "borrow_cap_used_percent": { "$ref": "#/$defs/udecimalString" }
+      }
     }
   },
-  "additionalProperties": false
+  "examples": [
+    {
+      "network": "base",
+      "chain_id": 8453,
+      "address": "0x0000000000000000000000000000000000000000",
+      "timestamp": 1700000000,
+      "user": {
+        "health_factor": "1.23",
+        "ltv": "0.72",
+        "liquidation_threshold": "0.78",
+        "liquidation_buffer_usd": "123.45",
+        "available_borrows_usd": "456.78",
+        "risk_class": "moderate",
+        "is_safe": true,
+        "stress_tests": {
+          "hf_minus_1pct": "1.21",
+          "hf_minus_3pct": "1.18",
+          "hf_minus_5pct": "1.17"
+        }
+      },
+      "totals": {
+        "total_collateral_usd": "1000.00",
+        "total_debt_usd": "600.00",
+        "net_equity_usd": "400.00",
+        "current_leverage_ratio": "2.50",
+        "max_leverage_at_current_hf": "4.00"
+      },
+      "collateral": [],
+      "debt": [],
+      "oracles": {
+        "base_currency": { "symbol": "ETH", "price_usd": "2000.00", "last_update": 1700000000 },
+        "assets": []
+      },
+      "config": {
+        "emode": { "active": false, "category": null, "settings": null },
+        "isolation_mode": { "active": false, "debt_ceiling_remaining_usd": "0" },
+        "caps": []
+      },
+      "meta": { "data_provider": "aave-v3", "oracle_source": "aave-oracle", "latency_ms": 10, "version": "1.0.0" }
+    }
+  ]
 }
