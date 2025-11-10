@@ -1,0 +1,244 @@
+
+## `schemas/aave-base-hf-snapshot.schema.json`
+```json
+{
+  "$id": "https://example.com/schemas/aave-base-hf-snapshot.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AAVE v3 – Health Factor Snapshot (Base 8453)",
+  "type": "object",
+  "required": [
+    "network",
+    "chain_id",
+    "address",
+    "timestamp",
+    "user",
+    "totals",
+    "collateral",
+    "debt",
+    "oracles",
+    "config"
+  ],
+  "properties": {
+    "network": { "type": "string", "const": "base" },
+    "chain_id": { "type": "integer", "const": 8453 },
+    "address": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+    "timestamp": { "type": "integer" },
+    "user": {
+      "type": "object",
+      "required": [
+        "health_factor",
+        "ltv",
+        "liquidation_threshold",
+        "liquidation_buffer_usd",
+        "available_borrows_usd",
+        "risk_class",
+        "is_safe"
+      ],
+      "properties": {
+        "health_factor": { "type": "number" },
+        "ltv": { "type": "number", "minimum": 0, "maximum": 1 },
+        "liquidation_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+        "liquidation_buffer_usd": { "type": "number" },
+        "available_borrows_usd": { "type": "number" },
+        "risk_class": { "type": "string", "enum": ["low", "moderate", "high"] },
+        "is_safe": { "type": "boolean" },
+        "stress_tests": {
+          "type": "object",
+          "required": ["hf_minus_1pct", "hf_minus_3pct", "hf_minus_5pct"],
+          "properties": {
+            "hf_minus_1pct": { "type": "number" },
+            "hf_minus_3pct": { "type": "number" },
+            "hf_minus_5pct": { "type": "number" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "totals": {
+      "type": "object",
+      "required": [
+        "total_collateral_usd",
+        "total_debt_usd",
+        "net_equity_usd",
+        "current_leverage_ratio",
+        "max_leverage_at_current_hf"
+      ],
+      "properties": {
+        "total_collateral_usd": { "type": "number" },
+        "total_debt_usd": { "type": "number" },
+        "net_equity_usd": { "type": "number" },
+        "current_leverage_ratio": { "type": "number", "minimum": 0 },
+        "max_leverage_at_current_hf": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "collateral": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/CollateralItem" }
+    },
+    "debt": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DebtItem" }
+    },
+    "oracles": {
+      "type": "object",
+      "required": ["base_currency", "assets"],
+      "properties": {
+        "base_currency": {
+          "type": "object",
+          "required": ["symbol", "price_usd", "last_update"],
+          "properties": {
+            "symbol": { "type": "string" },
+            "price_usd": { "type": "number" },
+            "last_update": { "type": "integer" }
+          },
+          "additionalProperties": false
+        },
+        "assets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PriceInfo" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "config": {
+      "type": "object",
+      "required": ["emode", "isolation_mode", "caps"],
+      "properties": {
+        "emode": {
+          "type": "object",
+          "required": ["active", "category"],
+          "properties": {
+            "active": { "type": "boolean" },
+            "category": { "type": ["integer", "null"] },
+            "settings": { "$ref": "#/$defs/EmodeSettings" }
+          },
+          "additionalProperties": false
+        },
+        "isolation_mode": {
+          "type": "object",
+          "required": ["active", "debt_ceiling_remaining_usd"],
+          "properties": {
+            "active": { "type": "boolean" },
+            "debt_ceiling_remaining_usd": { "type": "number" }
+          },
+          "additionalProperties": false
+        },
+        "caps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CapUsage" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "data_provider": { "type": "string", "const": "aave-v3" },
+        "oracle_source": { "type": "string", "enum": ["aave-oracle", "chainlink", "custom"] },
+        "latency_ms": { "type": "integer", "minimum": 0 },
+        "version": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "TokenRef": {
+      "type": "object",
+      "required": ["symbol", "address", "decimals"],
+      "properties": {
+        "symbol": { "type": "string" },
+        "address": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+        "decimals": { "type": "integer", "minimum": 0, "maximum": 36 }
+      },
+      "additionalProperties": false
+    },
+    "PriceInfo": {
+      "type": "object",
+      "required": ["token", "price_usd", "last_update"],
+      "properties": {
+        "token": { "$ref": "#/$defs/TokenRef" },
+        "price_usd": { "type": "number" },
+        "last_update": { "type": "integer" },
+        "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "CollateralItem": {
+      "type": "object",
+      "required": [
+        "token",
+        "amount",
+        "amount_usd",
+        "price_usd",
+        "usage_as_collateral_enabled",
+        "reserve_ltv",
+        "reserve_liquidation_threshold",
+        "reserve_liquidation_bonus",
+        "emode_category"
+      ],
+      "properties": {
+        "token": { "$ref": "#/$defs/TokenRef" },
+        "amount": { "type": "number" },
+        "amount_usd": { "type": "number" },
+        "price_usd": { "type": "number" },
+        "usage_as_collateral_enabled": { "type": "boolean" },
+        "reserve_ltv": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reserve_liquidation_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reserve_liquidation_bonus": { "type": "number", "minimum": 0 },
+        "emode_category": { "type": ["integer", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "DebtItem": {
+      "type": "object",
+      "required": [
+        "token",
+        "variable_debt",
+        "stable_debt",
+        "total_debt_usd",
+        "variable_borrow_apy",
+        "stable_borrow_apy",
+        "reserve_utilization",
+        "borrow_cap",
+        "borrow_cap_used_percent"
+      ],
+      "properties": {
+        "token": { "$ref": "#/$defs/TokenRef" },
+        "variable_debt": { "type": "number" },
+        "stable_debt": { "type": "number" },
+        "total_debt_usd": { "type": "number" },
+        "variable_borrow_apy": { "type": "number" },
+        "stable_borrow_apy": { "type": "number" },
+        "reserve_utilization": { "type": "number", "minimum": 0, "maximum": 1 },
+        "borrow_cap": { "type": "number" },
+        "borrow_cap_used_percent": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": false
+    },
+    "EmodeSettings": {
+      "type": "object",
+      "required": ["ltv", "liquidation_threshold", "liquidation_bonus"],
+      "properties": {
+        "ltv": { "type": "number", "minimum": 0, "maximum": 1 },
+        "liquidation_threshold": { "type": "number", "minimum": 0, "maximum": 1 },
+        "liquidation_bonus": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "CapUsage": {
+      "type": "object",
+      "required": ["token", "supply_cap", "supply_cap_used_percent", "borrow_cap", "borrow_cap_used_percent"],
+      "properties": {
+        "token": { "$ref": "#/$defs/TokenRef" },
+        "supply_cap": { "type": "number" },
+        "supply_cap_used_percent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "borrow_cap": { "type": "number" },
+        "borrow_cap_used_percent": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
