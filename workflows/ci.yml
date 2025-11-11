@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest  # you develop on Windows; this mirrors your env
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || (
+            echo "jsonschema==4.25.1" >> requirements.txt
+            pip install -r requirements.txt
+          )
+
+      - name: Create .env for tests
+        run: |
+          Copy-Item -Path .env.example -Destination .env -Force
+
+      - name: Event-path test (import)
+        run: |
+          python test_local.py
+        env:
+          # Override to ensure CLI path uses JSON-only output via test script flag
+          RPC_URL: https://base.drpc.org
+          MY_ADDRESS: 0x1111111111111111111111111111111111111111
+
+      - name: Produce sample artifact from CLI
+        shell: pwsh
+        run: |
+          $out = python src/handler.py --json 0x1111111111111111111111111111111111111111
+          New-Item -ItemType Directory -Path artifacts -Force | Out-Null
+          $out | Out-File -FilePath artifacts/sample-response.json -Encoding utf8
+
+      - name: Upload sample JSON
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-response
+          path: artifacts/sample-response.json
