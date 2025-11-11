@@ -2,6 +2,7 @@
 import os
 import json
 import time
+import argparse
 from decimal import Decimal, getcontext
 from typing import Any, Dict, List, Tuple
 from web3 import Web3
@@ -24,9 +25,7 @@ def to_units(raw: int, decimals: int) -> Decimal:
 def _fmt_plain_decimal(x: Decimal) -> str:
     """Return a plain decimal string (no scientific notation), trim '-0' to '0'."""
     s = format(x, "f")
-    # Avoid '-0' artifacts
     if s.startswith("-0"):
-        # If everything after '-' is zeros and optional dot, normalize to '0'
         try:
             if Decimal(s) == 0:
                 return "0"
@@ -36,8 +35,7 @@ def _fmt_plain_decimal(x: Decimal) -> str:
 
 def as_str(dec: Decimal) -> str:
     """
-    Backward-compatible: string decimals for all money/ratios/apys/etc.
-    Accepts Decimal already in code-path and normalizes '-0' to '0'.
+    String decimals for money/ratios/apys/etc.
     """
     return _fmt_plain_decimal(dec)
 
@@ -393,7 +391,7 @@ def build_snapshot(rpc_url: str, user_address: str) -> Dict[str, Any]:
             "reserve_ltv": as_str(D(cfg["ltv_bps"]) / D(10000)),  # string decimal
             "reserve_liquidation_threshold": as_str(D(cfg["liq_thr_bps"]) / D(10000)),  # string decimal
             "reserve_liquidation_bonus": as_str(D(cfg["liq_bonus_bps"]) / D(10000)),  # string decimal
-            "emode_category": (str(cfg["emode_category"]) if cfg["emode_category"] is not None else None)  # enum -> string or null
+            "emode_category": (str(cfg["emode_category"]) if cfg["emode_category"] is not None else None)
         }
         collateral.append(collateral_row)
 
@@ -566,19 +564,15 @@ def handler(event: Dict[str, Any]) -> Dict[str, Any]:
 
     In production on dRPC, omit rpc_url so their internal provider is used.
     """
-    # Load .env only when running locally; harmless in dRPC
     load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True)
 
-    # Prefer event inputs; fall back to env for local runs
     addr = event.get("address") or os.environ.get("MY_ADDRESS")
     if not addr:
         raise ValueError("Missing 'address'. Provide wallet address in request or MY_ADDRESS in .env.")
     user_address = Web3.to_checksum_address(addr)
 
     rpc_url = event.get("rpc_url") or os.environ.get("RPC_URL")
-    # In dRPC, you typically do NOT set rpc_url; they inject their own provider.
     if not rpc_url:
-        # Sensible default for local dev on Base if nothing is provided
         rpc_url = "https://base.drpc.org"
 
     return build_snapshot(rpc_url=rpc_url, user_address=user_address)
@@ -586,32 +580,52 @@ def handler(event: Dict[str, Any]) -> Dict[str, Any]:
 # =========================
 # Local CLI helper (optional)
 # =========================
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="AAVE v3 Health Factor Snapshot (Base 8453) — JSON output by default with --json-only"
+    )
+    parser.add_argument("address", nargs="?", help="Wallet address (checksum or hex).")
+    parser.add_argument("--rpc", dest="rpc_url", default=None, help="Override Base RPC URL for local testing.")
+    parser.add_argument("--json-only", action="store_true",
+                        help="Print ONLY the JSON snapshot to stdout (no prompts, no banners).")
+    return parser.parse_args()
+
 if __name__ == "__main__":
-    # Local testing: `python handler.py`
-    import sys
-
+    # Local testing:
+    #   python src/handler.py --json-only 0xYourAddress
+    #   python src/handler.py --json-only --rpc https://base.drpc.org 0xYourAddress
     load_dotenv(dotenv_path=os.path.join(os.getcwd(), ".env"), override=True)
+    args = _parse_args()
 
-    arg_addr = os.environ.get("MY_ADDRESS")
-    if not arg_addr:
-        arg_addr = input("Please enter your wallet address: ")
-    if not arg_addr:
-        raise SystemExit("Error: No address provided. Exiting.")
+    # address resolution
+    addr = args.address or os.environ.get("MY_ADDRESS")
+    if not addr:
+        if args.json_only:
+            raise SystemExit("Missing address. Provide as CLI arg or MY_ADDRESS in .env.")
+        addr = input("Please enter your wallet address: ").strip()
+        if not addr:
+            raise SystemExit("Error: No address provided. Exiting.")
 
     try:
-        checksum_addr = Web3.to_checksum_address(arg_addr)
+        checksum_addr = Web3.to_checksum_address(addr)
     except Exception as e:
-        raise SystemExit(f"Error: Invalid address '{arg_addr}'. {e}")
+        raise SystemExit(f"Error: Invalid address '{addr}'. {e}")
 
+    # rpc resolution
     default_rpc = "https://base.drpc.org"
-    rpc = os.environ.get("RPC_URL")
+    rpc = args.rpc_url or os.environ.get("RPC_URL")
+    if not rpc and not args.json_only:
+        rpc_input = input(f"Please enter your Base RPC URL (press Enter to use default: {default_rpc}): ").strip()
+        rpc = rpc_input if rpc_input else default_rpc
     if not rpc:
-        rpc_input = input(f"Please enter your Base RPC URL (press Enter to use default: {default_rpc}): ")
-        rpc = rpc_input if rpc_input.strip() else default_rpc
-    if not rpc:
-        raise SystemExit("Error: No RPC URL provided. Exiting.")
+        rpc = default_rpc
 
-    print(f"Fetching snapshot for {checksum_addr} via {rpc}...")
-    out = build_snapshot(rpc, checksum_addr)
-    print("\n--- Snapshot Complete ---")
-    print(json.dumps(out, indent=2, ensure_ascii=False))
+    snapshot = build_snapshot(rpc, checksum_addr)
+
+    if args.json_only:
+        # IMPORTANT: emit ONLY JSON (for test_local.py parsing)
+        print(json.dumps(snapshot, ensure_ascii=False))
+    else:
+        print(f"Fetching snapshot for {checksum_addr} via {rpc}...")
+        print("\n--- Snapshot Complete ---")
+        print(json.dumps(snapshot, indent=2, ensure_ascii=False))
